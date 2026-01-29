@@ -16,16 +16,15 @@ jobs:
               run: |
                   git config --global --add safe.directory '*'
                   python3 -m pip install -r requirements.txt
-                  make crkbd:manna-harbour_miryoku:uf2 CONVERT_TO=rp2040_ce
-
-                  echo "=== LISTING UF2 FILES ==="
-                  find . -name "*.uf2"
-                  echo "========================="
+                  mkdir -p keyboards/crkbd/keymaps/miryoku
+                  cp -r users/manna-harbour_miryoku/* keyboards/crkbd/keymaps/miryoku/
+                  echo '#include "manna-harbour_miryoku.c"' > keyboards/crkbd/keymaps/miryoku/keymap.c
+                  qmk compile -kb crkbd/rev1 -km miryoku -e CONVERT_TO=rp2040_ce
 
             - name: Archive Firmware
               uses: actions/upload-artifact@v4
               with:
                   name: miryoku_corne_rp2040
                   path: |
-                      **/*.uf2
-                      **/*.hex
+                      *.uf2
+                      *.hex
