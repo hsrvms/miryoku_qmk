@@ -1,0 +1,32 @@
+name: Build Miryoku Firmware
+
+on: [push, workflow_dispatch]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        container: qmkfm/qmk_cli
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+
+            - name: Install Dependencies
+              run: |
+                  apt-get update && apt-get install -y build-essential python3-pip
+                  python3 -m pip install qmk
+
+            - name: Build Firmware
+              run: |
+                  qmk setup -y -b master
+                  # This compiles Miryoku for Corne (crkbd) with RP2040 Community Edition converter
+                  qmk compile -kb crkbd/rev1 -km miryoku -e CONVERT_TO=rp2040_ce
+
+            - name: Archive Firmware
+              uses: actions/upload-artifact@v3
+              with:
+                  name: miryoku_corne_rp2040
+                  path: |
+                      *.uf2
+                      *.hex
