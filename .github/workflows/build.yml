@@ -1,30 +1,38 @@
-name: Build Miryoku Firmware
-
-on: [push, workflow_dispatch]
-
-jobs:
-    build:
-        runs-on: ubuntu-latest
-        container: qmkfm/qmk_cli
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-              with:
-                  submodules: recursive
-
-            - name: Build Firmware
+- name: Build Firmware
               run: |
+                  # 1. Fix Permissions & Dependencies
                   git config --global --add safe.directory '*'
                   python3 -m pip install -r requirements.txt
+
+                  # 2. Setup Keymap Folder
                   mkdir -p keyboards/crkbd/keymaps/miryoku
                   cp -r users/manna-harbour_miryoku/* keyboards/crkbd/keymaps/miryoku/
-                  echo '#include "manna-harbour_miryoku.c"' > keyboards/crkbd/keymaps/miryoku/keymap.c
-                  qmk compile -kb crkbd/rev1 -km miryoku -e CONVERT_TO=rp2040_ce
 
-            - name: Archive Firmware
-              uses: actions/upload-artifact@v4
-              with:
-                  name: miryoku_corne_rp2040
-                  path: |
-                      *.uf2
-                      *.hex
+                  # 3. Create config.h with the Corne mapping (Crucial Fix)
+                  cat <<EOF > keyboards/crkbd/keymaps/miryoku/config.h
+                  #pragma once
+
+                  // Map Miryoku (36 keys) to Corne (42 keys)
+                  // We ignore the outer columns (KC_NO) to center the layout
+                  #define LAYOUT_miryoku( \\
+                      K00, K01, K02, K03, K04, \\
+                      K05, K06, K07, K08, K09, \\
+                      K10, K11, K12, K13, K14, \\
+                      K15, K16, K17, K18, K19, \\
+                      K20, K21, K22, K23, K24, \\
+                      K25, K26, K27, K28, K29, \\
+                      N30, N31, N32, N33, N34, N35 \\
+                  ) \\
+                  LAYOUT_split_3x6_3( \\
+                      KC_NO, K00, K01, K02, K03, K04,    K05, K06, K07, K08, K09, KC_NO, \\
+                      KC_NO, K10, K11, K12, K13, K14,    K15, K16, K17, K18, K19, KC_NO, \\
+                      KC_NO, K20, K21, K22, K23, K24,    K25, K26, K27, K28, K29, KC_NO, \\
+                                N30, N31, N32,      N33, N34, N35 \\
+                  )
+                  EOF
+
+                  # 4. Create keymap.c stub
+                  echo '#include "manna-harbour_miryoku.c"' > keyboards/crkbd/keymaps/miryoku/keymap.c
+
+                  # 5. Compile
+                  qmk compile -kb crkbd/rev1 -km miryoku -e CONVERT_TO=rp2040_ce
