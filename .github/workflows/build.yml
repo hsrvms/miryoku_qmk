@@ -12,16 +12,11 @@ jobs:
               with:
                   submodules: recursive
 
-            - name: Install Dependencies
-              run: |
-                  apt-get update && apt-get install -y build-essential python3-pip
-                  python3 -m pip install qmk
-
             - name: Build Firmware
               run: |
                   git config --global --add safe.directory '*'
                   python3 -m pip install -r requirements.txt
-                  make crkbd:miryoku:uf2 CONVERT_TO=rp2040_ce
+                  make crkbd:manna-harbour_miryoku:uf2 CONVERT_TO=rp2040_ce
 
             - name: Archive Firmware
               uses: actions/upload-artifact@v4
