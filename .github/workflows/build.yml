@@ -1,4 +1,18 @@
-- name: Build Firmware
+name: Build Miryoku Firmware
+
+on: [push, workflow_dispatch]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        container: qmkfm/qmk_cli
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Build Firmware
               run: |
                   # 1. Fix Permissions & Dependencies
                   git config --global --add safe.directory '*'
@@ -36,3 +50,11 @@
 
                   # 5. Compile
                   qmk compile -kb crkbd/rev1 -km miryoku -e CONVERT_TO=rp2040_ce
+
+            - name: Archive Firmware
+              uses: actions/upload-artifact@v4
+              with:
+                  name: miryoku_corne_rp2040
+                  path: |
+                      *.uf2
+                      *.hex
