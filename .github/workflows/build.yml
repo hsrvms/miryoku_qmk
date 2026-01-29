@@ -8,7 +8,7 @@ jobs:
         container: qmkfm/qmk_cli
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                   submodules: recursive
 
@@ -24,7 +24,7 @@ jobs:
                   qmk compile -kb crkbd/rev1 -km miryoku -e CONVERT_TO=rp2040_ce
 
             - name: Archive Firmware
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: miryoku_corne_rp2040
                   path: |
