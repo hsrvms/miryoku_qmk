@@ -21,7 +21,7 @@ jobs:
               run: |
                   git config --global --add safe.directory '*'
                   python3 -m pip install -r requirements.txt
-                  qmk compile -kb crkbd/rev1 -km miryoku -e CONVERT_TO=rp2040_ce
+                  make crkbd:miryoku:uf2 CONVERT_TO=rp2040_ce
 
             - name: Archive Firmware
               uses: actions/upload-artifact@v4
