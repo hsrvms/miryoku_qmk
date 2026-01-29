@@ -19,8 +19,8 @@ jobs:
 
             - name: Build Firmware
               run: |
-                  qmk setup -y -b master
-                  # This compiles Miryoku for Corne (crkbd) with RP2040 Community Edition converter
+                  git config --global --add safe.directory '*'
+                  python3 -m pip install -r requirements.txt
                   qmk compile -kb crkbd/rev1 -km miryoku -e CONVERT_TO=rp2040_ce
 
             - name: Archive Firmware
